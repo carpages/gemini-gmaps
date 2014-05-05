@@ -1,0 +1,10 @@
+{
+  "name": "jquery-gmaps",
+  "authors": [
+    {"name": "Matt Rose", "email": "matt@mattrose.ca"}
+  ],
+  "dependencies": {
+    "jquery-boiler": "0.1.x",
+    "underscore": "1.6.x"
+  }
+}
