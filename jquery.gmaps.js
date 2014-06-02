@@ -1,188 +1,283 @@
-define(['jquery.boiler', 'underscore', 'async!https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false'], function($, _){
+/**
+ * @fileoverview
 
-	$.boiler('gmaps', {
-		defaults: {
-			locations: [{
-				title: 'Some location',
-				lat: 43.595884,
-				lng: -79.594319
-			},
-			{
-				title: 'Some location',
-				lat: 43.595884,
-				lng: -79.7
-			}],
-			mapOptions: {},
-			onMarkerActivated: false,
-			skipInit: false
-		},
+A jQuery plugin to easily interact with the Google Maps API
 
-		style: [{
-			"stylers": [{
-				"visibility": "off"
-			}]
-		}, {
-			"featureType": "road",
-			"elementType": "geometry",
-			"stylers": [{
-				"visibility": "on"
-			}, {
-				"color": "#ffffff"
-			}]
-		}, {
-			"featureType": "road.arterial",
-			"elementType": "geometry",
-			"stylers": [{
-				"visibility": "on"
-			}, {
-				"color": "#fee379"
-			}]
-		}, {
-			"featureType": "road.highway",
-			"elementType": "geometry",
-			"stylers": [{
-				"visibility": "on"
-			}, {
-				"color": "#fee379"
-			}]
-		}, {
-			"featureType": "landscape",
-			"stylers": [{
-				"visibility": "on"
-			}, {
-				"color": "#f3f4f4"
-			}]
-		}, {
-			"featureType": "water",
-			"stylers": [{
-				"visibility": "on"
-			}, {
-				"color": "#7fc8ed"
-			}]
-		}, {
-			"featureType": "poi.park",
-			"elementType": "geometry.fill",
-			"stylers": [{
-				"visibility": "on"
-			}, {
-				"color": "#83cead"
-			}]
-		}, {
-			"featureType": "road",
-			"elementType": "labels",
-			"stylers": [{
-				"visibility": "on"
-			}]
-		}, {
-			"featureType": "administrative",
-			"elementType": "labels",
-			"stylers": [{
-				"visibility": "on"
-			}]
-		}],
+### Notes
+- The dom elements need to have a width and height
 
-		data: ['title', 'latlng'],
+ *
+ * @namespace jquery.gmaps
+ * @copyright Carpages.ca 2014
+ * @author Matt Rose <matt@mattrose.ca>
+ *
+ * @requires underscore
+ * @requires jquery
+ * @requires jquery.boiler
+ * @requires require.async
+ *
+ * @prop {array} locations {@link jquery.gmaps#locations}
+ * @prop {object} mapOptions {@link jquery.gmaps#mapOptions}
+ * @prop {function} onMarkerActivated {@link jquery.gmaps#onMarkerActivated}
+ * @prop {boolean} skipInit {@link jquery.gmaps#skipInit}
+ *
+ * @example
+  <html>
+    <div id="js-map" height="100px"></div>
+  </html>
+ *
+ * @example
+  $('#js-map').gmaps({
+    locations: [
+      {
+        title: "Fake Location",
+        lat: 0,
+        lng: 0
+      }
+    ]
+  });
+ */
+define([
+  'jquery-loader',
+  'underscore',
+  'jquery.boiler',
+  'async!https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false'
+], function($, _){
 
-		init: function(){
-			if(!this.settings.skipInit){
-				this.initMap();
-				this.addMarkers();
-			} else {
-				this.settings.skipInit = false;
-			}
-		},
+  $.boiler('gmaps', {
+    defaults: {
+      /**
+       * Set the locations of the map with title, lat, lng
+       *
+       * @name jquery.gmaps#locations
+       * @type array
+       * @default []
+       */
+      locations: [{
+        title: 'Some location',
+        lat: 43.595884,
+        lng: -79.594319
+      },
+      {
+        title: 'Some location',
+        lat: 43.595884,
+        lng: -79.7
+      }],
+      /**
+       * Pass custom maps options using Google Maps' API.
+       * See [their API](https://developers.google.com/maps/documentation/javascript/reference?csw=1#MapOptions).
+       *
+       * @name jquery.gmaps#mapOptions
+       * @type object
+       * @default {}
+       */
+      mapOptions: {},
+      /**
+       * Callback function to run when a marker is clicked on.
+       * *Note:* 'this' refers to the Marker and location is sent as a callback parameter
+       *
+       * @name jquery.gmaps#onMarkerActivated
+       * @type function
+       * @default false
+       */
+      onMarkerActivated: false,
+      /**
+       * Don't initiate map onload (for performance)
+       *
+       * @name jquery.gmaps#skipInit
+       * @type boolean
+       * @default false
+       */
+      skipInit: false
+    },
 
-		initMap: function(){
-			var P = this;
+    style: [{
+      "stylers": [{
+        "visibility": "off"
+      }]
+    }, {
+      "featureType": "road",
+      "elementType": "geometry",
+      "stylers": [{
+        "visibility": "on"
+      }, {
+        "color": "#ffffff"
+      }]
+    }, {
+      "featureType": "road.arterial",
+      "elementType": "geometry",
+      "stylers": [{
+        "visibility": "on"
+      }, {
+        "color": "#fee379"
+      }]
+    }, {
+      "featureType": "road.highway",
+      "elementType": "geometry",
+      "stylers": [{
+        "visibility": "on"
+      }, {
+        "color": "#fee379"
+      }]
+    }, {
+      "featureType": "landscape",
+      "stylers": [{
+        "visibility": "on"
+      }, {
+        "color": "#f3f4f4"
+      }]
+    }, {
+      "featureType": "water",
+      "stylers": [{
+        "visibility": "on"
+      }, {
+        "color": "#7fc8ed"
+      }]
+    }, {
+      "featureType": "poi.park",
+      "elementType": "geometry.fill",
+      "stylers": [{
+        "visibility": "on"
+      }, {
+        "color": "#83cead"
+      }]
+    }, {
+      "featureType": "road",
+      "elementType": "labels",
+      "stylers": [{
+        "visibility": "on"
+      }]
+    }, {
+      "featureType": "administrative",
+      "elementType": "labels",
+      "stylers": [{
+        "visibility": "on"
+      }]
+    }],
 
-			//Extend mapoptions
-			P.mapOptions = $.extend({
-				mapTypeId: google.maps.MapTypeId.ROADMAP,
-				scrollwheel: false,
-				streetViewControl: false,
-				zoom: 13
-			}, P.settings.mapOptions);
+    data: ['title', 'latlng'],
 
-			P.map = new google.maps.Map(P.el, P.mapOptions);
+    init: function(){
+      if(!this.settings.skipInit){
+        this._initMap();
+        this._addMarkers();
+      } else {
+        this.settings.skipInit = false;
+      }
+    },
 
-			//Set styles
-			//http://stackoverflow.com/questions/10857997/remove-the-report-a-map-error-from-google-map
-			var mapType = new google.maps.StyledMapType(P.style, {name: 'Dummy Style'});
-			P.map.mapTypes.set('Dummy Style', mapType);
-			P.map.setMapTypeId('Dummy Style');
+    /**
+     * Initiate the map
+     *
+     * @private
+     * @method
+     * @name jquery.gmaps#_initMap
+    **/
+    _initMap: function(){
+      var P = this;
 
-			//Setup marker icons
-			P.icon = {
-				active: '/images/primary/maps/active-icon.png',
-				inactive: '/images/primary/maps/inactive-icon.png'
-			};
-		},
+      //Extend mapoptions
+      P.mapOptions = $.extend({
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        scrollwheel: false,
+        streetViewControl: false,
+        zoom: 13
+      }, P.settings.mapOptions);
 
-		addMarkers: function(){
-			var P = this;
+      P.map = new google.maps.Map(P.el, P.mapOptions);
 
-			P.markers = [];
+      //Set styles
+      //http://stackoverflow.com/questions/10857997/remove-the-report-a-map-error-from-google-map
+      var mapType = new google.maps.StyledMapType(P.style, {name: 'Dummy Style'});
+      P.map.mapTypes.set('Dummy Style', mapType);
+      P.map.setMapTypeId('Dummy Style');
 
-			var bounds = new google.maps.LatLngBounds();
+      //Setup marker icons
+      P.icon = {
+        active: 'http://www.carpages.ca/images/primary/maps/active-icon.png',
+        inactive: 'http://www.carpages.ca/images/primary/maps/inactive-icon.png'
+      };
+    },
 
-			$.each(P.settings.locations, function(i, location){
-				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(location.lat, location.lng),
-					map: P.map,
-					title: location.title,
-					icon: i === 0 || !P.settings.onMarkerActivated ? P.icon.active : P.icon.inactive,
-					animation: google.maps.Animation.DROP
-				});
+    /**
+     * Initiate the markers
+     *
+     * @private
+     * @method
+     * @name jquery.gmaps#_addMarkers
+    **/
+    _addMarkers: function(){
+      var P = this;
 
-				P.markers.push(marker);
+      P.markers = [];
 
-				bounds.extend(marker.position);
+      var bounds = new google.maps.LatLngBounds();
 
-				if (P.settings.onMarkerActivated) {
-					google.maps.event.addListener(marker, 'click', function() {
-						//Change the icons
-						if(P.markers.length > 1){
-							$.each(P.markers, function(i, marker){
-								marker.setIcon(P.icon.inactive);
-							});
-							marker.setIcon(P.icon.active);
-						}
+      $.each(P.settings.locations, function(i, location){
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(location.lat, location.lng),
+          map: P.map,
+          title: location.title,
+          icon: i === 0 || !P.settings.onMarkerActivated ? P.icon.active : P.icon.inactive,
+          animation: google.maps.Animation.DROP
+        });
 
-						P.settings.onMarkerActivated.call(marker, location);
-					});
+        P.markers.push(marker);
 
-					//activate first icon
-					if (i===0) P.settings.onMarkerActivated.call(marker, location);
-				}
-				
-				
-			});
+        bounds.extend(marker.position);
 
-			P.map.fitBounds(bounds);
+        if (P.settings.onMarkerActivated) {
+          google.maps.event.addListener(marker, 'click', function() {
+            //Change the icons
+            if(P.markers.length > 1){
+              $.each(P.markers, function(i, marker){
+                marker.setIcon(P.icon.inactive);
+              });
+              marker.setIcon(P.icon.active);
+            }
 
-			google.maps.event.addListenerOnce(P.map, "bounds_changed", function () {
-				var zoom = P.map.getZoom();
-				P.map.setZoom(Math.min(zoom, P.mapOptions.zoom));
-			});
-		},
+            P.settings.onMarkerActivated.call(marker, location);
+          });
 
-		_getIEVersion: function(){
-			// Returns the version of Windows Internet Explorer or a -1
-			// (indicating the use of another browser).
-			var rv = -1; // Return value assumes failure.
-			if (navigator.appName == 'Microsoft Internet Explorer')
-			{
-				var ua = navigator.userAgent;
-				var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-				if (re.exec(ua) !== null)
-					rv = parseFloat( RegExp.$1 );
-			}
-			return rv;
-		}
-	});
+          //activate first icon
+          if (i===0) P.settings.onMarkerActivated.call(marker, location);
+        }
 
-	// Return the jquery object
-	// This way you don't need to require both jquery and the plugin
-	return $;
+
+      });
+
+      P.map.fitBounds(bounds);
+
+      google.maps.event.addListenerOnce(P.map, "bounds_changed", function () {
+        var zoom = P.map.getZoom();
+        P.map.setZoom(Math.min(zoom, P.mapOptions.zoom));
+      });
+    },
+
+    /**
+     * Get the current version of IE
+     *
+     * @private
+     * @method
+     * @name jquery.gmaps#_getIEVersion
+    **/
+    _getIEVersion: function(){
+      // Returns the version of Windows Internet Explorer or a -1
+      // (indicating the use of another browser).
+      var rv = -1; // Return value assumes failure.
+      if (navigator.appName == 'Microsoft Internet Explorer')
+      {
+        var ua = navigator.userAgent;
+        var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) !== null)
+          rv = parseFloat( RegExp.$1 );
+      }
+      return rv;
+    }
+  });
+
+  // Return the jquery object
+  // This way you don't need to require both jquery and the plugin
+  return $;
 
 });
