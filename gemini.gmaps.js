@@ -1,25 +1,23 @@
 /**
  * @fileoverview
 
-A jQuery plugin to easily interact with the Google Maps API
+A Gemini plugin to easily interact with the Google Maps API
 
 ### Notes
 - The dom elements need to have a width and height
 
  *
- * @namespace jquery.gmaps
+ * @namespace gemini.gmaps
  * @copyright Carpages.ca 2014
  * @author Matt Rose <matt@mattrose.ca>
  *
- * @requires underscore
- * @requires jquery
- * @requires jquery.boiler
+ * @requires gemini
  * @requires require.async
  *
- * @prop {array} locations {@link jquery.gmaps#locations}
- * @prop {object} mapOptions {@link jquery.gmaps#mapOptions}
- * @prop {function} onMarkerActivated {@link jquery.gmaps#onMarkerActivated}
- * @prop {boolean} skipInit {@link jquery.gmaps#skipInit}
+ * @prop {array} locations {@link gemini.gmaps#locations}
+ * @prop {object} mapOptions {@link gemini.gmaps#mapOptions}
+ * @prop {function} onMarkerActivated {@link gemini.gmaps#onMarkerActivated}
+ * @prop {boolean} skipInit {@link gemini.gmaps#skipInit}
  *
  * @example
   <html>
@@ -27,7 +25,7 @@ A jQuery plugin to easily interact with the Google Maps API
   </html>
  *
  * @example
-  $('#js-map').gmaps({
+  G('#js-map').gmaps({
     locations: [
       {
         title: "Fake Location",
@@ -38,18 +36,18 @@ A jQuery plugin to easily interact with the Google Maps API
   });
  */
 define([
-  'jquery-loader',
-  'underscore',
-  'jquery.boiler',
+  'gemini',
   'async!https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false'
-], function($, _){
+], function($){
+
+  var _ = $._;
 
   $.boiler('gmaps', {
     defaults: {
       /**
        * Set the locations of the map with title, lat, lng
        *
-       * @name jquery.gmaps#locations
+       * @name gemini.gmaps#locations
        * @type array
        * @default []
        */
@@ -67,7 +65,7 @@ define([
        * Pass custom maps options using Google Maps' API.
        * See [their API](https://developers.google.com/maps/documentation/javascript/reference?csw=1#MapOptions).
        *
-       * @name jquery.gmaps#mapOptions
+       * @name gemini.gmaps#mapOptions
        * @type object
        * @default {}
        */
@@ -76,7 +74,7 @@ define([
        * Callback function to run when a marker is clicked on.
        * *Note:* 'this' refers to the Marker and location is sent as a callback parameter
        *
-       * @name jquery.gmaps#onMarkerActivated
+       * @name gemini.gmaps#onMarkerActivated
        * @type function
        * @default false
        */
@@ -84,7 +82,7 @@ define([
       /**
        * Don't initiate map onload (for performance)
        *
-       * @name jquery.gmaps#skipInit
+       * @name gemini.gmaps#skipInit
        * @type boolean
        * @default false
        */
@@ -171,7 +169,7 @@ define([
      *
      * @private
      * @method
-     * @name jquery.gmaps#_initMap
+     * @name gemini.gmaps#_initMap
     **/
     _initMap: function(){
       var P = this;
@@ -204,7 +202,7 @@ define([
      *
      * @private
      * @method
-     * @name jquery.gmaps#_addMarkers
+     * @name gemini.gmaps#_addMarkers
     **/
     _addMarkers: function(){
       var P = this;
@@ -259,7 +257,7 @@ define([
      *
      * @private
      * @method
-     * @name jquery.gmaps#_getIEVersion
+     * @name gemini.gmaps#_getIEVersion
     **/
     _getIEVersion: function(){
       // Returns the version of Windows Internet Explorer or a -1
