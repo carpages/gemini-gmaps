@@ -3,6 +3,10 @@
   "authors": [
     {"name": "Matt Rose", "email": "matt@mattrose.ca"}
   ],
+  "main": [
+    "gemini.gmaps.js"
+  ],
+  "ignore": [],
   "dependencies": {
     "gemini-loader": "ssh://git@stash.carpages.ca/gem/gemini-loader.git",
     "requirejs-plugins": "1.0.x"
