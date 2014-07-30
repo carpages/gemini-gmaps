@@ -15,6 +15,7 @@ A Gemini plugin to easily interact with the Google Maps API
  * @requires require.async
  *
  * @prop {array} locations {@link gemini.gmaps#locations}
+ * @prop {array} animation {@link gemini.gmaps#animation}
  * @prop {object} mapOptions {@link gemini.gmaps#mapOptions}
  * @prop {function} onMarkerActivated {@link gemini.gmaps#onMarkerActivated}
  * @prop {boolean} skipInit {@link gemini.gmaps#skipInit}
@@ -45,7 +46,7 @@ define([
   $.boiler('gmaps', {
     defaults: {
       /**
-       * Set the locations of the map with title, lat, lng
+       * Set the locations of the map with title, lat, lng, content
        *
        * @name gemini.gmaps#locations
        * @type array
@@ -54,13 +55,24 @@ define([
       locations: [{
         title: 'Some location',
         lat: 43.595884,
-        lng: -79.594319
+        lng: -79.594319,
+        content: false
       },
       {
         title: 'Some location',
         lat: 43.595884,
-        lng: -79.7
+        lng: -79.7,
+        content: false
       }],
+      /**
+       * The animation for the markers
+       * See [the animation options](https://developers.google.com/maps/documentation/javascript/markers#animate).
+       *
+       * @name gemini.gmaps#animation
+       * @type string
+       * @default "DROP"
+       */
+      animation: "DROP",
       /**
        * Pass custom maps options using Google Maps' API.
        * See [their API](https://developers.google.com/maps/documentation/javascript/reference?csw=1#MapOptions).
@@ -217,12 +229,21 @@ define([
           map: P.map,
           title: location.title,
           icon: i === 0 || !P.settings.onMarkerActivated ? P.icon.active : P.icon.inactive,
-          animation: google.maps.Animation.DROP
+          animation: !!P.settings.animation ? google.maps.Animation[P.settings.animation] : null
         });
 
         P.markers.push(marker);
 
         bounds.extend(marker.position);
+
+        // Load info window if content is sent
+        if (!!location.content) {
+          var infowindow = new google.maps.InfoWindow({
+              content: location.content
+          });
+
+          infowindow.open(P.map, marker);
+        }
 
         if (P.settings.onMarkerActivated) {
           google.maps.event.addListener(marker, 'click', function() {
