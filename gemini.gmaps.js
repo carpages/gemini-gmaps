@@ -204,8 +204,8 @@ define([
 
       //Setup marker icons
       P.icon = {
-        active: 'http://www.carpages.ca/images/primary/maps/active-icon.png',
-        inactive: 'http://www.carpages.ca/images/primary/maps/inactive-icon.png'
+        active: '//www.carpages.ca/images/primary/maps/active-icon.png',
+        inactive: '//www.carpages.ca/images/primary/maps/inactive-icon.png'
       };
     },
 
