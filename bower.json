@@ -6,9 +6,14 @@
   "main": [
     "gemini.gmaps.js"
   ],
-  "ignore": [],
+  "ignore": [
+    "test"
+  ],
   "dependencies": {
     "gemini-loader": "~0",
     "requirejs-plugins": "1.0.x"
+  },
+  "devDependencies": {
+    "requirejs": "~2.1.11"
   }
 }
