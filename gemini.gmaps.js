@@ -22,24 +22,41 @@ A Gemini plugin to easily interact with the Google Maps API
  *
  * @example
   <html>
-    <div id="js-map" height="100px"></div>
+    <div id="js-map" style="height: 300px;"></div>
   </html>
  *
  * @example
   G('#js-map').gmaps({
     locations: [
       {
-        title: "Fake Location",
-        lat: 0,
-        lng: 0
+        title: "Mississauga",
+        lat: 43.58821,
+        lng: -79.64172
       }
-    ]
+    ],
+    mapOptions: {
+      zoom: 11
+    }
   });
  */
-define([
-  'gemini',
-  'async!https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false'
-], function($){
+(function(factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define([
+      'gemini',
+      'async!https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false'
+    ], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory(
+      require('gemini'),
+      require('google-maps')
+    );
+  } else {
+    // Browser globals
+    factory(G);
+  }
+}(function($) {
 
   var _ = $._;
 
@@ -299,4 +316,4 @@ define([
   // This way you don't need to require both jquery and the plugin
   return $;
 
-});
+}));
