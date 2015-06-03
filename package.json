@@ -7,11 +7,16 @@
     "email": "matt@mattrose.ca",
     "url": "http://mattrose.ca"
   },
+  "main": "gemini.gmaps.js",
   "licenses": [
     {
       "type": "MIT"
     }
   ],
+  "dependencies": {
+    "gemini-loader": "~0",
+    "google-maps": "3.0.x"
+  },
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-jshint": "~0.7.2",
