@@ -8,11 +8,10 @@
     "url": "http://mattrose.ca"
   },
   "main": "gemini.gmaps.js",
-  "licenses": [
-    {
-      "type": "MIT"
-    }
-  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carpages/gemini-gmaps"
+  },
   "dependencies": {
     "gemini-loader": "~0",
     "google-maps": "3.0.x"
@@ -23,5 +22,6 @@
     "jshint-stylish": "~0.1.3",
     "load-grunt-tasks": "~0.2.0",
     "time-grunt": "~0.2.3"
-  }
+  },
+  "licenses": "MIT"
 }
