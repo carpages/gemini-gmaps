@@ -115,72 +115,25 @@ A Gemini plugin to easily interact with the Google Maps API
        * @type boolean
        * @default false
        */
-      skipInit: false
+      skipInit: false,
+      /**
+       * Add custom styling to map
+       *
+       * @name gemini.gmaps#style
+       * @type array
+       * @default []
+       */
+      style: [],
+      /**
+       * Add custom marker icon. The object expects an 'active' and 'inactive'
+       * key value which points to a png.
+       *
+       * @name gemini.gmaps#icon
+       * @type object
+       * @default {}
+       */
+      icon: {}
     },
-
-    style: [{
-      "stylers": [{
-        "visibility": "off"
-      }]
-    }, {
-      "featureType": "road",
-      "elementType": "geometry",
-      "stylers": [{
-        "visibility": "on"
-      }, {
-        "color": "#ffffff"
-      }]
-    }, {
-      "featureType": "road.arterial",
-      "elementType": "geometry",
-      "stylers": [{
-        "visibility": "on"
-      }, {
-        "color": "#fee379"
-      }]
-    }, {
-      "featureType": "road.highway",
-      "elementType": "geometry",
-      "stylers": [{
-        "visibility": "on"
-      }, {
-        "color": "#fee379"
-      }]
-    }, {
-      "featureType": "landscape",
-      "stylers": [{
-        "visibility": "on"
-      }, {
-        "color": "#f3f4f4"
-      }]
-    }, {
-      "featureType": "water",
-      "stylers": [{
-        "visibility": "on"
-      }, {
-        "color": "#7fc8ed"
-      }]
-    }, {
-      "featureType": "poi.park",
-      "elementType": "geometry.fill",
-      "stylers": [{
-        "visibility": "on"
-      }, {
-        "color": "#83cead"
-      }]
-    }, {
-      "featureType": "road",
-      "elementType": "labels",
-      "stylers": [{
-        "visibility": "on"
-      }]
-    }, {
-      "featureType": "administrative",
-      "elementType": "labels",
-      "stylers": [{
-        "visibility": "on"
-      }]
-    }],
 
     data: ['title', 'latlng'],
 
@@ -215,15 +168,9 @@ A Gemini plugin to easily interact with the Google Maps API
 
       //Set styles
       //http://stackoverflow.com/questions/10857997/remove-the-report-a-map-error-from-google-map
-      var mapType = new google.maps.StyledMapType(P.style, {name: 'Dummy Style'});
+      var mapType = new google.maps.StyledMapType(P.settings.style, {name: 'Dummy Style'});
       P.map.mapTypes.set('Dummy Style', mapType);
       P.map.setMapTypeId('Dummy Style');
-
-      //Setup marker icons
-      P.icon = {
-        active: 'http://www.carpages.ca/images/primary/maps/active-icon.png',
-        inactive: 'http://www.carpages.ca/images/primary/maps/inactive-icon.png'
-      };
     },
 
     /**
@@ -245,7 +192,7 @@ A Gemini plugin to easily interact with the Google Maps API
           position: new google.maps.LatLng(location.lat, location.lng),
           map: P.map,
           title: location.title,
-          icon: i === 0 || !P.settings.onMarkerActivated ? P.icon.active : P.icon.inactive,
+          icon: i === 0 || !P.settings.onMarkerActivated ? P.settings.icon.active : P.settings.icon.inactive,
           animation: !!P.settings.animation ? google.maps.Animation[P.settings.animation] : null
         });
 
@@ -267,9 +214,9 @@ A Gemini plugin to easily interact with the Google Maps API
             //Change the icons
             if(P.markers.length > 1){
               $.each(P.markers, function(i, marker){
-                marker.setIcon(P.icon.inactive);
+                marker.setIcon(P.settings.icon.inactive);
               });
-              marker.setIcon(P.icon.active);
+              marker.setIcon(P.settings.icon.active);
             }
 
             P.settings.onMarkerActivated.call(marker, location);
