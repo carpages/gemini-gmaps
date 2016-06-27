@@ -5,6 +5,7 @@ A Gemini plugin to easily interact with the Google Maps API
 
 ### Notes
 - The dom elements need to have a width and height
+- Set `G.D.GOOGLE_MAPS_API_KEY` or `window.GOOGLE_MAPS_API_KEY` to use an api key
 
  *
  * @namespace gemini.gmaps
@@ -42,9 +43,13 @@ A Gemini plugin to easily interact with the Google Maps API
 (function(factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
+    var key = (typeof G !== 'undefined' && typeof G.D !== 'undefined' && typeof G.D.GOOGLE_MAPS_API_KEY !== 'undefined') ?
+              G.D.GOOGLE_MAPS_API_KEY :
+              window.GOOGLE_MAPS_API_KEY || false;
+
     define([
       'gemini',
-      'async!https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false'
+      'async!https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false' + (!!key ? '&key=' + key : '')
     ], factory);
   } else if (typeof exports === 'object') {
     // Node/CommonJS
