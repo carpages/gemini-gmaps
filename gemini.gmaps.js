@@ -15,6 +15,7 @@ A Gemini plugin to easily interact with the Google Maps API
  * @requires gemini
  * @requires require.async
  *
+ * @prop {array} apiKey {@link gemini.gmaps#apiKey}
  * @prop {array} locations {@link gemini.gmaps#locations}
  * @prop {array} animation {@link gemini.gmaps#animation}
  * @prop {object} mapOptions {@link gemini.gmaps#mapOptions}
@@ -43,13 +44,9 @@ A Gemini plugin to easily interact with the Google Maps API
 (function(factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    var key = (typeof G !== 'undefined' && typeof G.D !== 'undefined' && typeof G.D.GOOGLE_MAPS_API_KEY !== 'undefined') ?
-              G.D.GOOGLE_MAPS_API_KEY :
-              window.GOOGLE_MAPS_API_KEY || false;
-
     define([
       'gemini',
-      'async!https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false' + (!!key ? '&key=' + key : '')
+      'google-maps'
     ], factory);
   } else if (typeof exports === 'object') {
     // Node/CommonJS
@@ -59,33 +56,29 @@ A Gemini plugin to easily interact with the Google Maps API
     );
   } else {
     // Browser globals
-    factory(G);
+    factory(G, GoogleMapsLoader);
   }
-}(function($) {
-
-  var _ = $._;
+}(function($, GoogleMapsLoader) {
 
   $.boiler('gmaps', {
     defaults: {
       /**
-       * Set the locations of the map with title, lat, lng, content
+       * Set a key for the API. Google requires this as of June 22, 2016.
+       * http://googlegeodevelopers.blogspot.ca/2016/06/building-for-scale-updates-to-google.html
+       *
+       * @name gemini.gmaps#apiKey
+       * @type string
+       * @default false
+       */
+      apiKey: false,
+      /**
+       * Set the locations of the map by passing objects with a title, lat, lng, and content
        *
        * @name gemini.gmaps#locations
        * @type array
        * @default []
        */
-      locations: [{
-        title: 'Some location',
-        lat: 43.595884,
-        lng: -79.594319,
-        content: false
-      },
-      {
-        title: 'Some location',
-        lat: 43.595884,
-        lng: -79.7,
-        content: false
-      }],
+      locations: [],
       /**
        * The animation for the markers
        * See [the animation options](https://developers.google.com/maps/documentation/javascript/markers#animate).
@@ -143,11 +136,21 @@ A Gemini plugin to easily interact with the Google Maps API
     data: ['title', 'latlng'],
 
     init: function(){
-      if(!this.settings.skipInit){
-        this._initMap();
-        this._addMarkers();
+      var P = this;
+
+      // Set key
+      if(P.settings.apiKey) {
+        GoogleMapsLoader.KEY = P.settings.apiKey;
+      }
+
+      // Launch da map
+      if(!P.settings.skipInit){
+        GoogleMapsLoader.load(function(g) {
+          var google = g;
+          P._initMap();
+        });
       } else {
-        this.settings.skipInit = false;
+        P.settings.skipInit = false;
       }
     },
 
@@ -176,6 +179,8 @@ A Gemini plugin to easily interact with the Google Maps API
       var mapType = new google.maps.StyledMapType(P.settings.style, {name: 'Dummy Style'});
       P.map.mapTypes.set('Dummy Style', mapType);
       P.map.setMapTypeId('Dummy Style');
+
+      P._addMarkers();
     },
 
     /**

@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "gemini-loader": "~0",
-    "google-maps": "3.0.x"
+    "google-maps": "3.2.1"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
