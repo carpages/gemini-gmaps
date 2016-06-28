@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v2.0.0
+
+    - Added plugin option to set apiKey
+    - Removed async dependency
+    - Added google-maps api loader
+        - AMD builds will need to change their setup to point to google-maps api loader file
+    - Removed old ie stuff
+
 ## v1.1.0
 
     - Add ability to set api key (only for amd right now)
