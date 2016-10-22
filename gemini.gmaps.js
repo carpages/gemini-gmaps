@@ -153,7 +153,6 @@ A Gemini plugin to easily interact with the Google Maps API
       // Launch da map
       if ( !P.settings.skipInit ) {
         GoogleMapsLoader.load( function( g ) {
-          // var google = g;
           P._initMap();
         });
       } else {
