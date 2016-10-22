@@ -1,3 +1,4 @@
+/* global GoogleMapsLoader, google */
 /**
  * @fileoverview
 
@@ -41,26 +42,25 @@ A Gemini plugin to easily interact with the Google Maps API
     }
   });
  */
-(function(factory) {
-  if (typeof define === 'function' && define.amd) {
+( function( factory ) {
+  if ( typeof define === 'function' && define.amd ) {
     // AMD. Register as an anonymous module.
     define([
       'gemini',
       'google-maps'
-    ], factory);
-  } else if (typeof exports === 'object') {
+    ], factory );
+  } else if ( typeof exports === 'object' ) {
     // Node/CommonJS
     module.exports = factory(
-      require('gemini'),
-      require('google-maps')
+      require( 'gemini' ),
+      require( 'google-maps' )
     );
   } else {
     // Browser globals
-    factory(G, GoogleMapsLoader);
+    factory( G, GoogleMapsLoader );
   }
-}(function($, GoogleMapsLoader) {
-
-  $.boiler('gmaps', {
+}( function( $, GoogleMapsLoader ) {
+  $.boiler( 'gmaps', {
     defaults: {
       /**
        * Set a key for the API. Google requires this as of June 22, 2016.
@@ -71,6 +71,7 @@ A Gemini plugin to easily interact with the Google Maps API
        * @default false
        */
       apiKey: false,
+
       /**
        * Set the locations of the map by passing objects with a title, lat, lng, and content
        *
@@ -79,6 +80,7 @@ A Gemini plugin to easily interact with the Google Maps API
        * @default []
        */
       locations: [],
+
       /**
        * The animation for the markers
        * See [the animation options](https://developers.google.com/maps/documentation/javascript/markers#animate).
@@ -87,7 +89,8 @@ A Gemini plugin to easily interact with the Google Maps API
        * @type string
        * @default "DROP"
        */
-      animation: "DROP",
+      animation: 'DROP',
+
       /**
        * Pass custom maps options using Google Maps' API.
        * See [their API](https://developers.google.com/maps/documentation/javascript/reference?csw=1#MapOptions).
@@ -97,6 +100,7 @@ A Gemini plugin to easily interact with the Google Maps API
        * @default {}
        */
       mapOptions: {},
+
       /**
        * Callback function to run when a marker is clicked on.
        * *Note:* 'this' refers to the Marker and location is sent as a callback parameter
@@ -106,6 +110,7 @@ A Gemini plugin to easily interact with the Google Maps API
        * @default false
        */
       onMarkerActivated: false,
+
       /**
        * Don't initiate map onload (for performance)
        *
@@ -114,6 +119,7 @@ A Gemini plugin to easily interact with the Google Maps API
        * @default false
        */
       skipInit: false,
+
       /**
        * Add custom styling to map
        *
@@ -122,6 +128,7 @@ A Gemini plugin to easily interact with the Google Maps API
        * @default []
        */
       style: [],
+
       /**
        * Add custom marker icon. The object expects an 'active' and 'inactive'
        * key value which points to a png.
@@ -133,20 +140,20 @@ A Gemini plugin to easily interact with the Google Maps API
       icon: {}
     },
 
-    data: ['title', 'latlng'],
+    data: [ 'title', 'latlng' ],
 
-    init: function(){
+    init: function() {
       var P = this;
 
       // Set key
-      if(P.settings.apiKey) {
+      if ( P.settings.apiKey ) {
         GoogleMapsLoader.KEY = P.settings.apiKey;
       }
 
       // Launch da map
-      if(!P.settings.skipInit){
-        GoogleMapsLoader.load(function(g) {
-          var google = g;
+      if ( !P.settings.skipInit ) {
+        GoogleMapsLoader.load( function( g ) {
+          // var google = g;
           P._initMap();
         });
       } else {
@@ -161,24 +168,24 @@ A Gemini plugin to easily interact with the Google Maps API
      * @method
      * @name gemini.gmaps#_initMap
     **/
-    _initMap: function(){
+    _initMap: function() {
       var P = this;
 
-      //Extend mapoptions
+      // Extend mapoptions
       P.mapOptions = $.extend({
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        scrollwheel: false,
+        mapTypeId:         google.maps.MapTypeId.ROADMAP,
+        scrollwheel:       false,
         streetViewControl: false,
-        zoom: 13
-      }, P.settings.mapOptions);
+        zoom:              13
+      }, P.settings.mapOptions );
 
-      P.map = new google.maps.Map(P.el, P.mapOptions);
+      P.map = new google.maps.Map( P.el, P.mapOptions );
 
-      //Set styles
-      //http://stackoverflow.com/questions/10857997/remove-the-report-a-map-error-from-google-map
-      var mapType = new google.maps.StyledMapType(P.settings.style, {name: 'Dummy Style'});
-      P.map.mapTypes.set('Dummy Style', mapType);
-      P.map.setMapTypeId('Dummy Style');
+      // Set styles
+      // http://stackoverflow.com/questions/10857997/remove-the-report-a-map-error-from-google-map
+      var mapType = new google.maps.StyledMapType( P.settings.style, { name: 'Dummy Style' });
+      P.map.mapTypes.set( 'Dummy Style', mapType );
+      P.map.setMapTypeId( 'Dummy Style' );
 
       P._addMarkers();
     },
@@ -190,60 +197,60 @@ A Gemini plugin to easily interact with the Google Maps API
      * @method
      * @name gemini.gmaps#_addMarkers
     **/
-    _addMarkers: function(){
+    _addMarkers: function() {
       var P = this;
 
       P.markers = [];
 
       var bounds = new google.maps.LatLngBounds();
 
-      $.each(P.settings.locations, function(i, location){
+      $.each( P.settings.locations, function( i, location ) {
         var marker = new google.maps.Marker({
-          position: new google.maps.LatLng(location.lat, location.lng),
-          map: P.map,
-          title: location.title,
-          icon: i === 0 || !P.settings.onMarkerActivated ? P.settings.icon.active : P.settings.icon.inactive,
-          animation: !!P.settings.animation ? google.maps.Animation[P.settings.animation] : null
+          position:  new google.maps.LatLng( location.lat, location.lng ),
+          map:       P.map,
+          title:     location.title,
+          icon:      i === 0 || !P.settings.onMarkerActivated ? P.settings.icon.active : P.settings.icon.inactive,
+          animation: P.settings.animation
+            ? google.maps.Animation[P.settings.animation]
+            : null
         });
 
-        P.markers.push(marker);
+        P.markers.push( marker );
 
-        bounds.extend(marker.position);
+        bounds.extend( marker.position );
 
         // Load info window if content is sent
-        if (!!location.content) {
+        if ( location.content ) {
           var infowindow = new google.maps.InfoWindow({
-              content: location.content
+            content: location.content
           });
 
-          infowindow.open(P.map, marker);
+          infowindow.open( P.map, marker );
         }
 
-        if (P.settings.onMarkerActivated) {
-          google.maps.event.addListener(marker, 'click', function() {
-            //Change the icons
-            if(P.markers.length > 1){
-              $.each(P.markers, function(i, marker){
-                marker.setIcon(P.settings.icon.inactive);
+        if ( P.settings.onMarkerActivated ) {
+          google.maps.event.addListener( marker, 'click', function() {
+            // Change the icons
+            if ( P.markers.length > 1 ) {
+              $.each( P.markers, function( i, marker ) {
+                marker.setIcon( P.settings.icon.inactive );
               });
-              marker.setIcon(P.settings.icon.active);
+              marker.setIcon( P.settings.icon.active );
             }
 
-            P.settings.onMarkerActivated.call(marker, location);
+            P.settings.onMarkerActivated.call( marker, location );
           });
 
-          //activate first icon
-          if (i===0) P.settings.onMarkerActivated.call(marker, location);
+          // activate first icon
+          if ( i === 0 ) P.settings.onMarkerActivated.call( marker, location );
         }
-
-
       });
 
-      P.map.fitBounds(bounds);
+      P.map.fitBounds( bounds );
 
-      google.maps.event.addListenerOnce(P.map, "bounds_changed", function () {
+      google.maps.event.addListenerOnce( P.map, 'bounds_changed', function() {
         var zoom = P.map.getZoom();
-        P.map.setZoom(Math.min(zoom, P.mapOptions.zoom));
+        P.map.setZoom( Math.min( zoom, P.mapOptions.zoom ));
       });
     }
   });
@@ -251,5 +258,4 @@ A Gemini plugin to easily interact with the Google Maps API
   // Return the jquery object
   // This way you don't need to require both jquery and the plugin
   return $;
-
 }));
