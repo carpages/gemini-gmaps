@@ -52,7 +52,7 @@ A Gemini plugin to easily interact with the Google Maps API
   } else if ( typeof exports === 'object' ) {
     // Node/CommonJS
     module.exports = factory(
-      require( 'gemini' ),
+      require( 'gemini-loader' ),
       require( 'google-maps' )
     );
   } else {
