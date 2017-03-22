@@ -172,10 +172,10 @@ A Gemini plugin to easily interact with the Google Maps API
 
       // Extend mapoptions
       P.mapOptions = $.extend({
-        mapTypeId:         google.maps.MapTypeId.ROADMAP,
-        scrollwheel:       false,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        scrollwheel: false,
         streetViewControl: false,
-        zoom:              13
+        zoom: 13
       }, P.settings.mapOptions );
 
       P.map = new google.maps.Map( P.el, P.mapOptions );
@@ -205,10 +205,10 @@ A Gemini plugin to easily interact with the Google Maps API
 
       $.each( P.settings.locations, function( i, location ) {
         var marker = new google.maps.Marker({
-          position:  new google.maps.LatLng( location.lat, location.lng ),
-          map:       P.map,
-          title:     location.title,
-          icon:      i === 0 || !P.settings.onMarkerActivated ? P.settings.icon.active : P.settings.icon.inactive,
+          position: new google.maps.LatLng( location.lat, location.lng ),
+          map: P.map,
+          title: location.title,
+          icon: i === 0 || !P.settings.onMarkerActivated ? P.settings.icon.active : P.settings.icon.inactive,
           animation: P.settings.animation
             ? google.maps.Animation[P.settings.animation]
             : null
