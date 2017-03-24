@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v2.0.2
+
+  - Use Carpages eslint config
+
 ## v2.0.1
 
   - Update CommonJS require to `gemini-loader`
