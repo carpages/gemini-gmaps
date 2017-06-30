@@ -1,14 +1,10 @@
 {
   "name": "gemini-gmaps",
-  "authors": [
-    {"name": "Matt Rose", "email": "matt@mattrose.ca"}
-  ],
-  "main": [
-    "gemini.gmaps.js"
-  ],
+  "authors": [{ "name": "Matt Rose", "email": "matt@mattrose.ca" }],
+  "main": ["gemini.gmaps.js"],
   "ignore": [],
   "dependencies": {
-    "gemini-loader": "~0",
+    "gemini-loader": "0.3.x",
     "requirejs-plugins": "1.0.x"
   }
 }
