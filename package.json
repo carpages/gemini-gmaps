@@ -13,7 +13,7 @@
     "url": "https://github.com/carpages/gemini-gmaps"
   },
   "dependencies": {
-    "gemini-loader": "~0",
+    "gemini-loader": "0.3.x",
     "google-maps": "3.2.1"
   },
   "devDependencies": {
