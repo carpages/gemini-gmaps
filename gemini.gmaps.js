@@ -98,7 +98,20 @@ define([
        * @type boolean
        * @default false
        */
-      skipInit: false
+      skipInit: false,
+      /**
+       * Icons to load for custom map style
+       *
+       * @name gemini.gmaps#icons
+       * @type object
+       * @default {}
+       */
+      icons: {
+        active: 'https://www.carpages.ca/images/primary/maps/active-icon.png',
+
+        inactive:
+          'https://www.carpages.ca/images/primary/maps/inactive-icon.png'
+      }
     },
 
     style: [{
@@ -204,8 +217,8 @@ define([
 
       //Setup marker icons
       P.icon = {
-        active: 'http://www.carpages.ca/images/primary/maps/active-icon.png',
-        inactive: 'http://www.carpages.ca/images/primary/maps/inactive-icon.png'
+        active: P.settings.icons.active,
+        inactive: P.settings.icons.inactive
       };
     },
 
