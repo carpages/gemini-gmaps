@@ -45,21 +45,15 @@ A Gemini plugin to easily interact with the Google Maps API
 ( function( factory ) {
   if ( typeof define === 'function' && define.amd ) {
     // AMD. Register as an anonymous module.
-    define([
-      'gemini',
-      'google-maps'
-    ], factory );
+    define([ 'gemini', 'google-maps' ], factory );
   } else if ( typeof exports === 'object' ) {
     // Node/CommonJS
-    module.exports = factory(
-      require( 'gemini-loader' ),
-      require( 'google-maps' )
-    );
+    module.exports = factory( require( 'gemini-loader' ), require( 'google-maps' ));
   } else {
     // Browser globals
     factory( G, GoogleMapsLoader );
   }
-}( function( $, GoogleMapsLoader ) {
+})( function( $, GoogleMapsLoader ) {
   $.boiler( 'gmaps', {
     defaults: {
       /**
@@ -150,9 +144,11 @@ A Gemini plugin to easily interact with the Google Maps API
         GoogleMapsLoader.KEY = P.settings.apiKey;
       }
 
+      GoogleMapsLoader.VERSION = P.settings.mapsVersion || '3';
+
       // Launch da map
       if ( !P.settings.skipInit ) {
-        GoogleMapsLoader.load( function( g ) {
+        GoogleMapsLoader.load( function() {
           P._initMap();
         });
       } else {
@@ -166,23 +162,29 @@ A Gemini plugin to easily interact with the Google Maps API
      * @private
      * @method
      * @name gemini.gmaps#_initMap
-    **/
+     **/
     _initMap: function() {
       var P = this;
 
       // Extend mapoptions
-      P.mapOptions = $.extend({
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        scrollwheel: false,
-        streetViewControl: false,
-        zoom: 13
-      }, P.settings.mapOptions );
+      P.mapOptions = $.extend(
+        {
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          scrollwheel: false,
+          streetViewControl: false,
+          zoom: 13
+        },
+        P.settings.mapOptions
+      );
 
       P.map = new google.maps.Map( P.el, P.mapOptions );
 
       // Set styles
       // http://stackoverflow.com/questions/10857997/remove-the-report-a-map-error-from-google-map
-      var mapType = new google.maps.StyledMapType( P.settings.style, { name: 'Dummy Style' });
+      var mapType = new google.maps.StyledMapType( P.settings.style, {
+        name: 'Dummy Style'
+      });
+
       P.map.mapTypes.set( 'Dummy Style', mapType );
       P.map.setMapTypeId( 'Dummy Style' );
 
@@ -195,7 +197,7 @@ A Gemini plugin to easily interact with the Google Maps API
      * @private
      * @method
      * @name gemini.gmaps#_addMarkers
-    **/
+     **/
     _addMarkers: function() {
       var P = this;
 
@@ -208,7 +210,10 @@ A Gemini plugin to easily interact with the Google Maps API
           position: new google.maps.LatLng( location.lat, location.lng ),
           map: P.map,
           title: location.title,
-          icon: i === 0 || !P.settings.onMarkerActivated ? P.settings.icon.active : P.settings.icon.inactive,
+          icon:
+            i === 0 || !P.settings.onMarkerActivated
+              ? P.settings.icon.active
+              : P.settings.icon.inactive,
           animation: P.settings.animation
             ? google.maps.Animation[P.settings.animation]
             : null
@@ -257,4 +262,4 @@ A Gemini plugin to easily interact with the Google Maps API
   // Return the jquery object
   // This way you don't need to require both jquery and the plugin
   return $;
-}));
+});

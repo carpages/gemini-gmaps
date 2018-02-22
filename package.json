@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "gemini-loader": "0.3.x",
-    "google-maps": "3.2.1"
+    "google-maps": "carpages/Js-GoogleMapsLoader#3.3.0"
   },
   "devDependencies": {
     "eslint": "^3.18.0",
