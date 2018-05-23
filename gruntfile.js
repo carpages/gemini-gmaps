@@ -11,7 +11,8 @@ module.exports = function( grunt ) {
   grunt.initConfig({
     // Metadata.
     pkg: grunt.file.readJSON( 'package.json' ),
-    banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+    banner:
+      '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
       '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
       '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
       '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
@@ -30,7 +31,7 @@ module.exports = function( grunt ) {
     },
     eslint: {
       options: {
-        configFile: '.eslintrc'
+        configFile: '.eslintrc.js'
       },
       target: [ 'gemini.gmaps.js' ]
     },
@@ -135,6 +136,6 @@ module.exports = function( grunt ) {
   });
 
   // Default task.
-  grunt.registerTask( 'default', [ 'eslint'/*, 'connect', 'qunit' */ ]);
-  grunt.registerTask( 'ci', [ 'default'/*, 'saucelabs-qunit' */ ]);
+  grunt.registerTask( 'default', [ 'eslint' /*, 'connect', 'qunit' */]);
+  grunt.registerTask( 'ci', [ 'default' /*, 'saucelabs-qunit' */]);
 };
