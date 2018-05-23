@@ -250,11 +250,10 @@ A Gemini plugin to easily interact with the Google Maps API
         }
       });
 
-      P.map.fitBounds( bounds );
+      P.map.setCenter( bounds.getCenter());
 
       google.maps.event.addListenerOnce( P.map, 'bounds_changed', function() {
-        var zoom = P.map.getZoom();
-        P.map.setZoom( Math.min( zoom, P.mapOptions.zoom ));
+        P.map.setZoom( Math.min( P.map.getZoom(), P.mapOptions.zoom ));
       });
     }
   });
