@@ -446,15 +446,6 @@ A Gemini plugin to easily interact with the Google Maps API
       width: null,
 
       /**
-       * Whether to set the elements width to match the maps width.
-       *
-       * @name gemini.gmaps#setWidth
-       * @type boolean
-       * @default false
-       */
-      setWidth: false,
-
-      /**
        * Set the static maps image format.
        *
        * @name gemini.gmaps#imageFormat
@@ -508,6 +499,9 @@ A Gemini plugin to easily interact with the Google Maps API
 
     _initEmbeddedMap: function() {
       var P = this;
+
+      // If no height is given, set a sensible default
+      P.settings.height = P.settings.height || 350;
 
       var loader = new EmbeddedMapLoader(
         P.settings.embedType,
