@@ -1,4 +1,4 @@
-/* global GoogleMapsLoader, google */
+/* global GoogleMapsLoader */
 /**
  * @fileoverview
 
@@ -53,8 +53,252 @@ A Gemini plugin to easily interact with the Google Maps API
     // Browser globals
     factory( G, GoogleMapsLoader );
   }
-})( function( $, GoogleMapsLoader ) {
-  $.boiler( 'gmaps', {
+})( function( G, GoogleMapsLoader ) {
+  function OptionList( optionSeparator ) {
+    this.options = [];
+    this.optionSeparator = optionSeparator || '&';
+
+    this.add = function( value ) {
+      this.options.push( value );
+      return this;
+    };
+
+    this.urlEncode = function() {
+      return this.options.join( this.optionSeparator );
+    };
+  }
+
+  function OptionSet( optionSeparator, keyValueSeparator ) {
+    this.options = {};
+    this.optionSeparator = optionSeparator || '&';
+    this.keyValueSeparator = keyValueSeparator || '=';
+
+    this.add = function( key, value ) {
+      this.options[key] = value;
+      return this;
+    };
+
+    this.urlEncode = function() {
+      var optionSet = this;
+      var keyValuePairs = Object.keys( optionSet.options ).map( function( key ) {
+        return (
+          encodeURIComponent( key ) +
+          optionSet.keyValueSeparator +
+          encodeURIComponent( optionSet.options[key])
+        );
+      });
+
+      return keyValuePairs.join( this.optionSeparator );
+    };
+  }
+
+  function MapStyleFeature() {
+    this.element = null;
+    this.setElement = function( element ) {
+      this.element = element;
+    };
+    this.addRules = function( rules ) {};
+  }
+
+  function MapStyle() {
+    this.features = [];
+    this.addFeature = function( feature ) {
+      this.features.push( feature );
+    };
+  }
+
+  function MarkerStyle( style ) {
+    this.settings = new OptionSet( '|', ':' );
+
+    this.setSize = function( size ) {
+      if ( !size ) return;
+      this.settings.add( 'size', size );
+    };
+
+    this.setColor = function( color ) {
+      if ( !color ) return;
+      this.settings.add( 'color', color.replace( '#', '0x' ));
+    };
+
+    this.setLabel = function( label ) {
+      if ( !label ) return;
+      this.settings.add( 'label', label );
+    };
+
+    this.urlEncode = function() {
+      return this.settings.urlEncode();
+    };
+  }
+
+  function Marker( options ) {
+    this.settings = options || {};
+    this.urlOptions = new OptionList( '|' );
+    this.locations = this.settings.locations || [];
+    this.style = new MarkerStyle();
+
+    this.addLocation = function( location ) {
+      this.locations.push( location );
+    };
+
+    this.urlEncode = function() {
+      var marker = this;
+      this.locations.map( function( location ) {
+        if ( location.style ) {
+          marker.style.setSize( location.style.size );
+          marker.style.setColor( location.style.color );
+        }
+
+        marker.style.setLabel( location.title );
+        marker.urlOptions
+          .add( marker.style.urlEncode())
+          .add([ location.lat, location.lng ].join( ',' ));
+      });
+      return this.urlOptions.urlEncode();
+    };
+  }
+
+  function StaticMapLoader( options ) {
+    var Loader = this;
+
+    Loader.settings = options || {};
+    Loader.baseURL = 'https://maps.googleapis.com/maps/api/staticmap';
+    Loader.urlOptions = new OptionSet();
+    Loader.markers = [];
+    Loader.mapStyle = new MapStyle();
+
+    Loader.configure = function() {
+      Loader.settings.width =
+        Loader.settings.width > 640 ? 640 : Loader.settings.width;
+      Loader.settings.height =
+        Loader.settings.height > 640 ? 640 : Loader.settings.height;
+    };
+
+    Loader.addMarkers = function( locations ) {
+      var marker = new Marker({ locations: locations });
+      Loader.markers.push( marker );
+      Loader.urlOptions.add( 'markers', marker.urlEncode());
+    };
+
+    Loader.load = function() {
+      Loader.urlOptions.add(
+        'center',
+        [
+          Loader.settings.locations[0].lat,
+          Loader.settings.locations[0].lng
+        ].join( ',' )
+      );
+
+      if ( Loader.settings.mapOptions.zoom ) {
+        Loader.urlOptions.add( 'zoom', Loader.settings.mapOptions.zoom );
+      }
+
+      Loader.urlOptions.add(
+        'size',
+        Loader.settings.width + 'x' + Loader.settings.height
+      );
+
+      Loader.urlOptions.add( 'format', Loader.settings.imageFormat );
+
+      if ( Loader.settings.locations ) {
+        Loader.addMarkers( Loader.settings.locations );
+      }
+
+      if ( Loader.settings.apiKey ) {
+        Loader.urlOptions.add( 'key', Loader.settings.apiKey );
+      }
+
+      var mapURL = Loader.buildMapURL();
+      var $imageElement = G( '<img>' );
+      $imageElement.attr( 'src', mapURL );
+      Loader.settings.$el.html( $imageElement );
+    };
+
+    Loader.buildMapURL = function() {
+      return Loader.baseURL + '?' + Loader.urlOptions.urlEncode();
+    };
+
+    Loader.configure();
+  }
+
+  function EmbeddedMapLoader( type, options ) {
+    var Loader = this;
+
+    type = type || 'place';
+    Loader.settings = options || {};
+    Loader.urlOptions = new OptionSet();
+    Loader.baseURL = 'https://www.google.com/maps/embed/v1/' + type;
+
+    var NotEnoughInformationError = new Error(
+      `When using the embed type one of the following must be provided: 
+        • an embedQuery, 
+        • a location with { lat: Integer, lng: Integer }, 
+        • a location with { title: String } that is an address or business name
+        • a location with { address: String } that is an address or business name`
+    );
+
+    Loader.configure = function() {
+      if (
+        ( !Loader.settings.embedQuery && Loader.settings.locations.length < 1 ) ||
+        ( !Loader.settings.locations[0].title &&
+          !Loader.settings.locations[0].address ) ||
+        ( !Loader.settings.locations[0].lat && !Loader.settings.locations[0].lng )
+      ) {
+        throw NotEnoughInformationError;
+      }
+
+      var embedQuery =
+        Loader.settings.embedQuery ||
+        Loader.settings.locations[0].address ||
+        Loader.settings.locations[0].title ||
+        [
+          Loader.settings.locations[0].lat,
+          Loader.settings.locations[0].lng
+        ].join( ',' );
+
+      Loader.urlOptions.add( 'q', embedQuery );
+
+      if ( Loader.settings.apiKey ) {
+        Loader.urlOptions.add( 'key', Loader.settings.apiKey );
+      }
+    };
+
+    Loader.load = function() {
+      var mapURL = Loader.buildMapURL();
+      var $iframe = G( '<iframe style="border:0">' )
+        .attr( 'src', mapURL )
+        .attr( 'frameborder', '0' )
+        .attr( 'height', Loader.settings.height );
+
+      Loader.settings.$el.html( $iframe );
+    };
+
+    Loader.buildMapURL = function() {
+      return Loader.baseURL + '?' + Loader.urlOptions.urlEncode();
+    };
+
+    Loader.configure();
+  }
+
+  function DynamicMapLoader( options ) {
+    var Loader = this;
+
+    Loader.settings = options || {};
+
+    Loader.configure = function() {
+      // Set key
+      if ( Loader.settings.apiKey ) {
+        GoogleMapsLoader.KEY = Loader.settings.apiKey;
+      }
+
+      GoogleMapsLoader.VERSION = Loader.settings.mapsVersion || '3';
+    };
+
+    Loader.load = GoogleMapsLoader.load;
+
+    Loader.configure();
+  }
+
+  G.boiler( 'gmaps', {
     defaults: {
       /**
        * Set a key for the API. Google requires this as of June 22, 2016.
@@ -131,24 +375,144 @@ A Gemini plugin to easily interact with the Google Maps API
        * @type object
        * @default {}
        */
-      icon: {}
+      icon: {},
+
+      /**
+       * The map type to initialize.
+       * Accepts any of 'embed', 'static', 'dynamic'.
+       *
+       * @name gemini.gmaps#type
+       * @type string
+       * @default 'embed'
+       */
+      type: 'embed',
+
+      /**
+       * The type of embedded map to load.
+       * Accepts any of 'place', 'directions', 'search', 'view', or 'streetview'.
+       *
+       * @name gemini.gmaps#embedType
+       * @type string
+       * @default 'place'
+       */
+      embedType: 'place',
+
+      /**
+       * The address / business name query to send to the Google Maps Embed API.
+       *
+       * @name gemini.gmaps#embedQuery
+       * @type string
+       * @default null
+       */
+      embedQuery: null,
+
+      /**
+       * The map height to initialize.
+       *
+       * @name gemini.gmaps#height
+       * @type integer
+       * @default 500
+       */
+      height: 500,
+
+      /**
+       * The map width to initialize.
+       *
+       * @name gemini.gmaps#width
+       * @type integer
+       * @default 1000
+       */
+      width: 1000,
+
+      /**
+       * Whether to set the elements width to match the maps width.
+       *
+       * @name gemini.gmaps#setWidth
+       * @type boolean
+       * @default false
+       */
+      setWidth: false,
+
+      /**
+       * Set the static maps image format.
+       *
+       * @name gemini.gmaps#imageFormat
+       * @type string
+       * @default 'png'
+       */
+      imageFormat: 'png'
     },
 
-    data: [ 'title', 'latlng' ],
+    data: [ 'title', 'latlng', 'height', 'width' ],
 
     init: function() {
       var P = this;
 
-      // Set key
-      if ( P.settings.apiKey ) {
-        GoogleMapsLoader.KEY = P.settings.apiKey;
+      P.$el.css( 'height', P.settings.height + 'px' );
+
+      if ( P.settings.setWidth ) {
+        P.$el.css( 'width', P.settings.width + 'px' );
       }
 
-      GoogleMapsLoader.VERSION = P.settings.mapsVersion || '3';
+      switch ( P.settings.type ) {
+        case 'static': {
+          P._initStaticMap();
+          break;
+        }
+
+        case 'dynamic': {
+          P._initDynamicMap();
+          break;
+        }
+
+        default: {
+          P._initEmbeddedMap();
+        }
+      }
+    },
+
+    /**
+     * Initiate the map
+     *
+     * @private
+     * @method
+     * @name gemini.gmaps#_initMap
+     **/
+    _setGoogleObject: function( google ) {
+      var P = this;
+      P.google = google;
+    },
+
+    _initEmbeddedMap: function() {
+      var P = this;
+
+      var loader = new EmbeddedMapLoader(
+        P.settings.embedType,
+        G.extend({ el: P.el, $el: P.$el }, P.settings )
+      );
+
+      loader.load();
+    },
+
+    _initStaticMap: function() {
+      var P = this;
+
+      var loader = new StaticMapLoader(
+        G.extend({ el: P.el, $el: P.$el }, P.settings )
+      );
+
+      loader.load();
+    },
+
+    _initDynamicMap: function() {
+      var P = this;
+
+      var loader = new DynamicMapLoader( P.settings );
 
       // Launch da map
       if ( !P.settings.skipInit ) {
-        GoogleMapsLoader.load( function() {
+        loader.load( function( google ) {
+          P._setGoogleObject( google );
           P._initMap();
         });
       } else {
@@ -167,9 +531,9 @@ A Gemini plugin to easily interact with the Google Maps API
       var P = this;
 
       // Extend mapoptions
-      P.mapOptions = $.extend(
+      P.mapOptions = G.extend(
         {
-          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          mapTypeId: P.google.maps.MapTypeId.ROADMAP,
           scrollwheel: false,
           streetViewControl: false,
           zoom: 13
@@ -177,11 +541,11 @@ A Gemini plugin to easily interact with the Google Maps API
         P.settings.mapOptions
       );
 
-      P.map = new google.maps.Map( P.el, P.mapOptions );
+      P.map = new P.google.maps.Map( P.el, P.mapOptions );
 
       // Set styles
       // http://stackoverflow.com/questions/10857997/remove-the-report-a-map-error-from-google-map
-      var mapType = new google.maps.StyledMapType( P.settings.style, {
+      var mapType = new P.google.maps.StyledMapType( P.settings.style, {
         name: 'Dummy Style'
       });
 
@@ -203,11 +567,11 @@ A Gemini plugin to easily interact with the Google Maps API
 
       P.markers = [];
 
-      var bounds = new google.maps.LatLngBounds();
+      var bounds = new P.google.maps.LatLngBounds();
 
-      $.each( P.settings.locations, function( i, location ) {
-        var marker = new google.maps.Marker({
-          position: new google.maps.LatLng( location.lat, location.lng ),
+      G.each( P.settings.locations, function( i, location ) {
+        var marker = new P.google.maps.Marker({
+          position: new P.google.maps.LatLng( location.lat, location.lng ),
           map: P.map,
           title: location.title,
           icon:
@@ -215,7 +579,7 @@ A Gemini plugin to easily interact with the Google Maps API
               ? P.settings.icon.active
               : P.settings.icon.inactive,
           animation: P.settings.animation
-            ? google.maps.Animation[P.settings.animation]
+            ? P.google.maps.Animation[P.settings.animation]
             : null
         });
 
@@ -225,7 +589,7 @@ A Gemini plugin to easily interact with the Google Maps API
 
         // Load info window if content is sent
         if ( location.content ) {
-          var infowindow = new google.maps.InfoWindow({
+          var infowindow = new P.google.maps.InfoWindow({
             content: location.content
           });
 
@@ -233,10 +597,10 @@ A Gemini plugin to easily interact with the Google Maps API
         }
 
         if ( P.settings.onMarkerActivated ) {
-          google.maps.event.addListener( marker, 'click', function() {
+          P.google.maps.event.addListener( marker, 'click', function() {
             // Change the icons
             if ( P.markers.length > 1 ) {
-              $.each( P.markers, function( i, marker ) {
+              G.each( P.markers, function( i, marker ) {
                 marker.setIcon( P.settings.icon.inactive );
               });
               marker.setIcon( P.settings.icon.active );
@@ -252,7 +616,7 @@ A Gemini plugin to easily interact with the Google Maps API
 
       P.map.setCenter( bounds.getCenter());
 
-      google.maps.event.addListenerOnce( P.map, 'bounds_changed', function() {
+      P.google.maps.event.addListenerOnce( P.map, 'bounds_changed', function() {
         P.map.setZoom( Math.min( P.map.getZoom(), P.mapOptions.zoom ));
       });
     }
