@@ -92,14 +92,6 @@ A Gemini plugin to easily interact with the Google Maps API
     };
   }
 
-  function MapStyleFeature() {
-    this.element = null;
-    this.setElement = function( element ) {
-      this.element = element;
-    };
-    this.addRules = function( rules ) {};
-  }
-
   function MapStyle() {
     this.features = [];
     this.addFeature = function( feature ) {
@@ -232,17 +224,6 @@ A Gemini plugin to easily interact with the Google Maps API
     Loader.urlOptions = new OptionSet();
     Loader.baseURL = 'https://www.google.com/maps/embed/v1/' + type;
 
-    function NotEnoughInformationError( message ) {
-      return new Error(
-        message ||
-          `When using the embed type one of the following must be provided: 
-          • an embedQuery, 
-          • a location with { lat: Integer, lng: Integer }, 
-          • a location with { title: String } that is an address or business name
-          • a location with { address: String } that is an address or business name`
-      );
-    }
-
     function Location( options ) {
       function Coordinate( latitude, longitude ) {
         try {
@@ -260,7 +241,6 @@ A Gemini plugin to easily interact with the Google Maps API
       this.coordinate = new Coordinate( options.lat, options.lng ) || null;
 
       this.isValid = function() {
-        console.log( this.coordinate );
         assert(
           this.coordinate || ( this.title || this.address ),
           'No title or address, or invalid coordinates for this location.' +
