@@ -20,7 +20,6 @@ require([ 'gemini', 'gemini.gmaps' ], function( G ) {
     apiKey: '<enter testing api key here>',
     locations: [
       {
-        title: 'Carpages.ca',
         lat: 43.59591,
         lng: -79.5956759
       }

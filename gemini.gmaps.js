@@ -220,6 +220,10 @@ A Gemini plugin to easily interact with the Google Maps API
     Loader.configure();
   }
 
+  function assert( condition, message ) {
+    if ( condition === false ) throw new Error( message || 'Failed assertion' );
+  }
+
   function EmbeddedMapLoader( type, options ) {
     var Loader = this;
 
@@ -228,22 +232,59 @@ A Gemini plugin to easily interact with the Google Maps API
     Loader.urlOptions = new OptionSet();
     Loader.baseURL = 'https://www.google.com/maps/embed/v1/' + type;
 
-    var NotEnoughInformationError = new Error(
-      `When using the embed type one of the following must be provided: 
-        • an embedQuery, 
-        • a location with { lat: Integer, lng: Integer }, 
-        • a location with { title: String } that is an address or business name
-        • a location with { address: String } that is an address or business name`
-    );
+    function NotEnoughInformationError( message ) {
+      return new Error(
+        message ||
+          `When using the embed type one of the following must be provided: 
+          • an embedQuery, 
+          • a location with { lat: Integer, lng: Integer }, 
+          • a location with { title: String } that is an address or business name
+          • a location with { address: String } that is an address or business name`
+      );
+    }
+
+    function Location( options ) {
+      function Coordinate( latitude, longitude ) {
+        try {
+          assert( latitude && longitude );
+        } catch ( error ) {
+          return null;
+        }
+
+        this.lat = parseInt( latitude );
+        this.lng = parseInt( longitude );
+      }
+
+      this.title = options.title || '';
+      this.address = options.address || '';
+      this.coordinate = new Coordinate( options.lat, options.lng ) || null;
+
+      this.isValid = function() {
+        console.log( this.coordinate );
+        assert(
+          this.coordinate || ( this.title || this.address ),
+          'No title or address, or invalid coordinates for this location.' +
+            JSON.stringify( this )
+        );
+
+        return true;
+      };
+    }
 
     Loader.configure = function() {
-      if (
-        ( !Loader.settings.embedQuery && Loader.settings.locations.length < 1 ) ||
-        ( !Loader.settings.locations[0].title &&
-          !Loader.settings.locations[0].address ) ||
-        ( !Loader.settings.locations[0].lat && !Loader.settings.locations[0].lng )
-      ) {
-        throw NotEnoughInformationError;
+      var location;
+
+      if ( !Loader.settings.embedQuery ) {
+        assert(
+          Loader.settings.locations && Loader.settings.locations.length > 0,
+          'No locations'
+        );
+
+        location = new Location( Loader.settings.locations[0]);
+        assert(
+          location.isValid(),
+          'Location invalid: ' + JSON.stringify( location )
+        );
       }
 
       var embedQuery =
