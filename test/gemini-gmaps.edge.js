@@ -13,16 +13,23 @@ requirejs.config({
 
 require([ 'gemini', 'gemini.gmaps' ], function( G ) {
   var $map = G( '#js-map' );
-  $map.gmaps({
+  var $mapStatic = G( '#js-map-static' );
+  var $mapDynamic = G( '#js-map-dynamic' );
+
+  var pluginOptions = {
+    apiKey: '<enter testing api key here>',
     locations: [
       {
-        title: 'Mississauga',
-        lat: 43.58821,
-        lng: -79.64172
+        lat: 43.59591,
+        lng: -79.5956759
       }
     ],
     mapOptions: {
-      zoom: 10
+      zoom: 15
     }
-  });
+  };
+
+  $map.gmaps( G.extend( pluginOptions ));
+  $mapStatic.gmaps( G.extend( pluginOptions, { type: 'static' }));
+  $mapDynamic.gmaps( G.extend( pluginOptions, { type: 'dynamic' }));
 });
