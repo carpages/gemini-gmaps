@@ -232,8 +232,8 @@ A Gemini plugin to easily interact with the Google Maps API
           return null;
         }
 
-        this.lat = parseInt( latitude );
-        this.lng = parseInt( longitude );
+        this.lat = parseFloat( latitude );
+        this.lng = parseFloat( longitude );
       }
 
       this.title = options.title || '';
