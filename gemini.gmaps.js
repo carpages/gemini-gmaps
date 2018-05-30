@@ -432,18 +432,18 @@ A Gemini plugin to easily interact with the Google Maps API
        *
        * @name gemini.gmaps#height
        * @type integer
-       * @default 500
+       * @default null
        */
-      height: 500,
+      height: null,
 
       /**
        * The map width to initialize.
        *
        * @name gemini.gmaps#width
        * @type integer
-       * @default 1000
+       * @default null
        */
-      width: 1000,
+      width: null,
 
       /**
        * Whether to set the elements width to match the maps width.
@@ -469,9 +469,11 @@ A Gemini plugin to easily interact with the Google Maps API
     init: function() {
       var P = this;
 
-      P.$el.css( 'height', P.settings.height + 'px' );
+      if ( P.settings.height ) {
+        P.$el.css( 'height', P.settings.height + 'px' );
+      }
 
-      if ( P.settings.setWidth ) {
+      if ( P.settings.width ) {
         P.$el.css( 'width', P.settings.width + 'px' );
       }
 
@@ -517,6 +519,10 @@ A Gemini plugin to easily interact with the Google Maps API
 
     _initStaticMap: function() {
       var P = this;
+
+      // 640 is the largest an non-Premium Static Map can be.
+      P.settings.height = P.settings.height || 640;
+      P.settings.width = P.settings.width || 640;
 
       var loader = new StaticMapLoader(
         G.extend({ el: P.el, $el: P.$el }, P.settings )
