@@ -154,21 +154,41 @@ A Gemini plugin to easily interact with the Google Maps API
 
     Loader.settings = options || {};
     Loader.baseURL = 'https://maps.googleapis.com/maps/api/staticmap';
+    Loader.directionsBaseURL = 'https://www.google.com/maps/dir/';
     Loader.urlOptions = new OptionSet();
     Loader.markers = [];
     Loader.mapStyle = new MapStyle();
+    Loader.directionsUrlOptions = new OptionSet();
 
     Loader.configure = function() {
       Loader.settings.width =
         Loader.settings.width > 640 ? 640 : Loader.settings.width;
       Loader.settings.height =
         Loader.settings.height > 640 ? 640 : Loader.settings.height;
+
+      Loader.directionsUrlOptions.add( 'api', '1' );
+      Loader.directionsUrlOptions.add(
+        'destination',
+        Loader.getQueryForLocation( Loader.settings.locations[0])
+      );
     };
 
     Loader.addMarkers = function( locations ) {
       var marker = new Marker({ locations: locations });
       Loader.markers.push( marker );
       Loader.urlOptions.add( 'markers', marker.urlEncode());
+    };
+
+    Loader.getQueryForLocation = function( location ) {
+      if ( location.address ) {
+        return location.address;
+      }
+
+      if ( location.lat && location.lng ) {
+        return [ location.lat, location.lng ].join( ',' );
+      }
+
+      return '';
     };
 
     Loader.load = function() {
@@ -200,9 +220,29 @@ A Gemini plugin to easily interact with the Google Maps API
       }
 
       var mapURL = Loader.buildMapURL();
+
       var $imageElement = G( '<img>' );
       $imageElement.attr( 'src', mapURL );
-      Loader.settings.$el.html( $imageElement );
+
+      var $directionsLinkElement = null;
+
+      if ( Loader.settings.linkToDirections ) {
+        $directionsLinkElement = G( '<a>' );
+
+        $directionsLinkElement.attr( 'href', Loader.buildDirectionsURL());
+
+        $directionsLinkElement.prepend( $imageElement );
+        Loader.settings.$el.prepend( $directionsLinkElement );
+        return;
+      }
+
+      Loader.settings.$el.prepend( $imageElement );
+    };
+
+    Loader.buildDirectionsURL = function() {
+      return (
+        Loader.directionsBaseURL + '?' + Loader.directionsUrlOptions.urlEncode()
+      );
     };
 
     Loader.buildMapURL = function() {
@@ -452,7 +492,19 @@ A Gemini plugin to easily interact with the Google Maps API
        * @type string
        * @default 'png'
        */
-      imageFormat: 'png'
+      imageFormat: 'png',
+
+      /**
+       * Whether or not to wrap the static image in an anchor that links to
+       * Google Maps for directions to the address.
+       *
+       * Note: Applies to 'static' MapType.
+       *
+       * @name gemini.gmaps#linkToDirections
+       * @type boolean
+       * @default false
+       */
+      linkToDirections: false
     },
 
     data: [ 'title', 'latlng', 'height', 'width' ],
