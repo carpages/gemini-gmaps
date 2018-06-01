@@ -17,7 +17,8 @@ require([ 'gemini', 'gemini.gmaps' ], function( G ) {
   var $mapDynamic = G( '#js-map-dynamic' );
 
   var pluginOptions = {
-    apiKey: '<enter testing api key here>',
+    apiKey: '',
+    height: 250,
     locations: [
       {
         lat: 43.59591,
@@ -29,7 +30,7 @@ require([ 'gemini', 'gemini.gmaps' ], function( G ) {
     }
   };
 
-  $map.gmaps( G.extend( pluginOptions ));
+  $map.gmaps( G.extend( pluginOptions, { embedType: 'view' }));
   $mapStatic.gmaps( G.extend( pluginOptions, { type: 'static' }));
   $mapDynamic.gmaps( G.extend( pluginOptions, { type: 'dynamic' }));
 });

@@ -92,6 +92,37 @@ A Gemini plugin to easily interact with the Google Maps API
     };
   }
 
+  function MapLocation( options ) {
+    function Coordinate( latitude, longitude ) {
+      try {
+        assert( latitude && longitude );
+      } catch ( error ) {
+        return null;
+      }
+
+      this.lat = parseFloat( latitude );
+      this.lng = parseFloat( longitude );
+
+      this.urlString = function() {
+        return [ this.lat, this.lng ].join( ',' );
+      };
+    }
+
+    this.title = options.title || '';
+    this.address = options.address || '';
+    this.coordinate = new Coordinate( options.lat, options.lng ) || null;
+
+    this.isValid = function() {
+      assert(
+        this.coordinate || ( this.title || this.address ),
+        'No title or address, or invalid coordinates for this location.' +
+          JSON.stringify( this )
+      );
+
+      return true;
+    };
+  }
+
   function MapStyle() {
     this.features = [];
     this.addFeature = function( feature ) {
@@ -264,33 +295,6 @@ A Gemini plugin to easily interact with the Google Maps API
     Loader.urlOptions = new OptionSet();
     Loader.baseURL = 'https://www.google.com/maps/embed/v1/' + type;
 
-    function Location( options ) {
-      function Coordinate( latitude, longitude ) {
-        try {
-          assert( latitude && longitude );
-        } catch ( error ) {
-          return null;
-        }
-
-        this.lat = parseFloat( latitude );
-        this.lng = parseFloat( longitude );
-      }
-
-      this.title = options.title || '';
-      this.address = options.address || '';
-      this.coordinate = new Coordinate( options.lat, options.lng ) || null;
-
-      this.isValid = function() {
-        assert(
-          this.coordinate || ( this.title || this.address ),
-          'No title or address, or invalid coordinates for this location.' +
-            JSON.stringify( this )
-        );
-
-        return true;
-      };
-    }
-
     Loader.configure = function() {
       var location;
 
@@ -300,7 +304,7 @@ A Gemini plugin to easily interact with the Google Maps API
           'No locations'
         );
 
-        location = new Location( Loader.settings.locations[0]);
+        location = new MapLocation( Loader.settings.locations[0]);
         assert(
           location.isValid(),
           'Location invalid: ' + JSON.stringify( location )
@@ -309,14 +313,22 @@ A Gemini plugin to easily interact with the Google Maps API
 
       var embedQuery =
         Loader.settings.embedQuery ||
-        Loader.settings.locations[0].address ||
-        Loader.settings.locations[0].title ||
-        [
-          Loader.settings.locations[0].lat,
-          Loader.settings.locations[0].lng
-        ].join( ',' );
+        location.address ||
+        location.title ||
+        location.coordinate.urlString();
 
-      Loader.urlOptions.add( 'q', embedQuery );
+      switch ( type ) {
+        case 'place': {
+          Loader.urlOptions.add( 'q', embedQuery );
+          break;
+        }
+        case 'view': {
+          console.log({ Loader });
+          Loader.urlOptions.add( 'center', location.coordinate.urlString());
+          Loader.urlOptions.add( 'zoom', Loader.settings.mapOptions.zoom );
+          break;
+        }
+      }
 
       if ( Loader.settings.apiKey ) {
         Loader.urlOptions.add( 'key', Loader.settings.apiKey );
