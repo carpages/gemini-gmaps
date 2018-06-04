@@ -323,7 +323,6 @@ A Gemini plugin to easily interact with the Google Maps API
           break;
         }
         case 'view': {
-          console.log({ Loader });
           Loader.urlOptions.add( 'center', location.coordinate.urlString());
           Loader.urlOptions.add( 'zoom', Loader.settings.mapOptions.zoom );
           break;
