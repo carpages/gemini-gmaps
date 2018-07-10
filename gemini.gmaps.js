@@ -322,11 +322,14 @@ A Gemini plugin to easily interact with the Google Maps API
           Loader.urlOptions.add( 'q', embedQuery );
           break;
         }
-        case 'view': {
-          Loader.urlOptions.add( 'center', location.coordinate.urlString());
-          Loader.urlOptions.add( 'zoom', Loader.settings.mapOptions.zoom );
-          break;
-        }
+      }
+
+      if ( location.coordinate ) {
+        Loader.urlOptions.add( 'center', location.coordinate.urlString());
+      }
+
+      if ( Loader.settings.mapOptions.zoom ) {
+        Loader.urlOptions.add( 'zoom', Loader.settings.mapOptions.zoom );
       }
 
       if ( Loader.settings.apiKey ) {
