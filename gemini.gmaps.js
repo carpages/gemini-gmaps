@@ -92,22 +92,22 @@ A Gemini plugin to easily interact with the Google Maps API
     };
   }
 
-  function MapLocation( options ) {
-    function Coordinate( latitude, longitude ) {
-      try {
-        assert( latitude && longitude );
-      } catch ( error ) {
-        return null;
-      }
-
-      this.lat = parseFloat( latitude );
-      this.lng = parseFloat( longitude );
-
-      this.urlString = function() {
-        return [ this.lat, this.lng ].join( ',' );
-      };
+  function Coordinate( latitude, longitude ) {
+    try {
+      assert( latitude && longitude );
+    } catch ( error ) {
+      return null;
     }
 
+    this.lat = parseFloat( latitude );
+    this.lng = parseFloat( longitude );
+
+    this.urlString = function() {
+      return [ this.lat, this.lng ].join( ',' );
+    };
+  }
+
+  function MapLocation( options ) {
     this.title = options.title || '';
     this.address = options.address || '';
     this.coordinate = new Coordinate( options.lat, options.lng ) || null;
@@ -324,8 +324,10 @@ A Gemini plugin to easily interact with the Google Maps API
         }
       }
 
-      if ( location.coordinate ) {
-        Loader.urlOptions.add( 'center', location.coordinate.urlString());
+      if ( Loader.settings.mapOptions.center ) {
+        var center = Loader.settings.mapOptions.center;
+        var coordinate = new Coordinate( center.lat, center.lng );
+        Loader.urlOptions.add( 'center', coordinate.urlString());
       }
 
       if ( Loader.settings.mapOptions.zoom ) {
