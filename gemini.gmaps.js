@@ -54,84 +54,86 @@ A Gemini plugin to easily interact with the Google Maps API
     factory( G, GoogleMapsLoader );
   }
 })( function( G, GoogleMapsLoader ) {
-  function OptionList( optionSeparator ) {
-    this.options = [];
-    this.optionSeparator = optionSeparator || '&';
+  var Option = {
+    List: function( optionSeparator ) {
+      this.options = [];
+      this.optionSeparator = optionSeparator || '&';
 
-    this.add = function( value ) {
-      this.options.push( value );
-      return this;
-    };
+      this.add = function( value ) {
+        this.options.push( value );
+        return this;
+      };
 
-    this.urlEncode = function() {
-      return this.options.join( this.optionSeparator );
-    };
-  }
+      this.urlEncode = function() {
+        return this.options.join( this.optionSeparator );
+      };
+    },
+    Set: function( optionSeparator, keyValueSeparator ) {
+      this.options = {};
+      this.optionSeparator = optionSeparator || '&';
+      this.keyValueSeparator = keyValueSeparator || '=';
 
-  function OptionSet( optionSeparator, keyValueSeparator ) {
-    this.options = {};
-    this.optionSeparator = optionSeparator || '&';
-    this.keyValueSeparator = keyValueSeparator || '=';
+      this.add = function( key, value ) {
+        this.options[key] = value;
+        return this;
+      };
 
-    this.add = function( key, value ) {
-      this.options[key] = value;
-      return this;
-    };
+      this.urlEncode = function() {
+        var optionSet = this;
+        var keyValuePairs = Object.keys( optionSet.options ).map( function( key ) {
+          return (
+            encodeURIComponent( key ) +
+            optionSet.keyValueSeparator +
+            encodeURIComponent( optionSet.options[key])
+          );
+        });
 
-    this.urlEncode = function() {
-      var optionSet = this;
-      var keyValuePairs = Object.keys( optionSet.options ).map( function( key ) {
-        return (
-          encodeURIComponent( key ) +
-          optionSet.keyValueSeparator +
-          encodeURIComponent( optionSet.options[key])
-        );
-      });
-
-      return keyValuePairs.join( this.optionSeparator );
-    };
-  }
-
-  function Coordinate( latitude, longitude ) {
-    try {
-      assert( latitude && longitude );
-    } catch ( error ) {
-      return null;
+        return keyValuePairs.join( this.optionSeparator );
+      };
     }
+  };
 
-    this.lat = parseFloat( latitude );
-    this.lng = parseFloat( longitude );
+  var Map = {
+    Coordinate: function( latitude, longitude ) {
+      try {
+        assert( latitude && longitude );
+      } catch ( error ) {
+        return null;
+      }
 
-    this.urlString = function() {
-      return [ this.lat, this.lng ].join( ',' );
-    };
-  }
+      this.lat = parseFloat( latitude );
+      this.lng = parseFloat( longitude );
 
-  function MapLocation( options ) {
+      this.urlString = function() {
+        return [ this.lat, this.lng ].join( ',' );
+      };
+    }
+  };
+
+  Map.Location = function( options ) {
     this.title = options.title || '';
     this.address = options.address || '';
-    this.coordinate = new Coordinate( options.lat, options.lng ) || null;
+    this.coordinate = new Map.Coordinate( options.lat, options.lng ) || null;
 
     this.isValid = function() {
       assert(
         this.coordinate || ( this.title || this.address ),
-        'No title or address, or invalid coordinates for this location.' +
-          JSON.stringify( this )
+        'No title or address, or invalid coordinates for this location.' + JSON.stringify( this )
       );
 
       return true;
     };
-  }
+  };
 
-  function MapStyle() {
+  Map.Style = function() {
     this.features = [];
     this.addFeature = function( feature ) {
       this.features.push( feature );
     };
-  }
+  };
 
-  function MarkerStyle( style ) {
-    this.settings = new OptionSet( '|', ':' );
+  Map.MarkerStyle = function( style ) {
+    this.settings = new Option.Set( '|', ':' );
 
     this.setSize = function( size ) {
       if ( !size ) return;
@@ -151,13 +153,13 @@ A Gemini plugin to easily interact with the Google Maps API
     this.urlEncode = function() {
       return this.settings.urlEncode();
     };
-  }
+  };
 
-  function Marker( options ) {
+  Map.Marker = function( options ) {
     this.settings = options || {};
-    this.urlOptions = new OptionList( '|' );
+    this.urlOptions = new Option.List( '|' );
     this.locations = this.settings.locations || [];
-    this.style = new MarkerStyle();
+    this.style = new Map.MarkerStyle();
 
     this.addLocation = function( location ) {
       this.locations.push( location );
@@ -172,13 +174,11 @@ A Gemini plugin to easily interact with the Google Maps API
         }
 
         marker.style.setLabel( location.title );
-        marker.urlOptions
-          .add( marker.style.urlEncode())
-          .add([ location.lat, location.lng ].join( ',' ));
+        marker.urlOptions.add( marker.style.urlEncode()).add([ location.lat, location.lng ].join( ',' ));
       });
       return this.urlOptions.urlEncode();
     };
-  }
+  };
 
   function StaticMapLoader( options ) {
     var Loader = this;
@@ -186,16 +186,14 @@ A Gemini plugin to easily interact with the Google Maps API
     Loader.settings = options || {};
     Loader.baseURL = 'https://maps.googleapis.com/maps/api/staticmap';
     Loader.directionsBaseURL = 'https://www.google.com/maps/dir/';
-    Loader.urlOptions = new OptionSet();
+    Loader.urlOptions = new Option.Set();
     Loader.markers = [];
-    Loader.mapStyle = new MapStyle();
-    Loader.directionsUrlOptions = new OptionSet();
+    Loader.mapStyle = new Map.Style();
+    Loader.directionsUrlOptions = new Option.Set();
 
     Loader.configure = function() {
-      Loader.settings.width =
-        Loader.settings.width > 640 ? 640 : Loader.settings.width;
-      Loader.settings.height =
-        Loader.settings.height > 640 ? 640 : Loader.settings.height;
+      Loader.settings.width = Loader.settings.width > 640 ? 640 : Loader.settings.width;
+      Loader.settings.height = Loader.settings.height > 640 ? 640 : Loader.settings.height;
 
       Loader.directionsUrlOptions.add( 'api', '1' );
       Loader.directionsUrlOptions.add(
@@ -205,7 +203,7 @@ A Gemini plugin to easily interact with the Google Maps API
     };
 
     Loader.addMarkers = function( locations ) {
-      var marker = new Marker({ locations: locations });
+      var marker = new Map.Marker({ locations: locations });
       Loader.markers.push( marker );
       Loader.urlOptions.add( 'markers', marker.urlEncode());
     };
@@ -225,20 +223,14 @@ A Gemini plugin to easily interact with the Google Maps API
     Loader.load = function() {
       Loader.urlOptions.add(
         'center',
-        [
-          Loader.settings.locations[0].lat,
-          Loader.settings.locations[0].lng
-        ].join( ',' )
+        [ Loader.settings.locations[0].lat, Loader.settings.locations[0].lng ].join( ',' )
       );
 
       if ( Loader.settings.mapOptions.zoom ) {
         Loader.urlOptions.add( 'zoom', Loader.settings.mapOptions.zoom );
       }
 
-      Loader.urlOptions.add(
-        'size',
-        Loader.settings.width + 'x' + Loader.settings.height
-      );
+      Loader.urlOptions.add( 'size', Loader.settings.width + 'x' + Loader.settings.height );
 
       Loader.urlOptions.add( 'format', Loader.settings.imageFormat );
 
@@ -271,9 +263,7 @@ A Gemini plugin to easily interact with the Google Maps API
     };
 
     Loader.buildDirectionsURL = function() {
-      return (
-        Loader.directionsBaseURL + '?' + Loader.directionsUrlOptions.urlEncode()
-      );
+      return Loader.directionsBaseURL + '?' + Loader.directionsUrlOptions.urlEncode();
     };
 
     Loader.buildMapURL = function() {
@@ -292,23 +282,17 @@ A Gemini plugin to easily interact with the Google Maps API
 
     type = type || 'place';
     Loader.settings = options || {};
-    Loader.urlOptions = new OptionSet();
+    Loader.urlOptions = new Option.Set();
     Loader.baseURL = 'https://www.google.com/maps/embed/v1/' + type;
 
     Loader.configure = function() {
       var location;
 
       if ( !Loader.settings.embedQuery ) {
-        assert(
-          Loader.settings.locations && Loader.settings.locations.length > 0,
-          'No locations'
-        );
+        assert( Loader.settings.locations && Loader.settings.locations.length > 0, 'No locations' );
 
-        location = new MapLocation( Loader.settings.locations[0]);
-        assert(
-          location.isValid(),
-          'Location invalid: ' + JSON.stringify( location )
-        );
+        location = new Map.Location( Loader.settings.locations[0]);
+        assert( location.isValid(), 'Location invalid: ' + JSON.stringify( location ));
       }
 
       var embedQuery =
@@ -326,7 +310,7 @@ A Gemini plugin to easily interact with the Google Maps API
 
       if ( Loader.settings.mapOptions.center ) {
         var center = Loader.settings.mapOptions.center;
-        var coordinate = new Coordinate( center.lat, center.lng );
+        var coordinate = new Map.Coordinate( center.lat, center.lng );
         Loader.urlOptions.add( 'center', coordinate.urlString());
       }
 
@@ -586,9 +570,7 @@ A Gemini plugin to easily interact with the Google Maps API
       P.settings.height = P.settings.height || 640;
       P.settings.width = P.settings.width || 640;
 
-      var loader = new StaticMapLoader(
-        G.extend({ el: P.el, $el: P.$el }, P.settings )
-      );
+      var loader = new StaticMapLoader( G.extend({ el: P.el, $el: P.$el }, P.settings ));
 
       loader.load();
     },
@@ -667,9 +649,7 @@ A Gemini plugin to easily interact with the Google Maps API
             i === 0 || !P.settings.onMarkerActivated
               ? P.settings.icon.active
               : P.settings.icon.inactive,
-          animation: P.settings.animation
-            ? P.google.maps.Animation[P.settings.animation]
-            : null
+          animation: P.settings.animation ? P.google.maps.Animation[P.settings.animation] : null
         });
 
         P.markers.push( marker );

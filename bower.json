@@ -9,10 +9,10 @@
   "main": ["gemini.gmaps.js"],
   "ignore": ["test"],
   "dependencies": {
-    "gemini-loader": "0.3.x",
+    "gemini-loader": "0.5.x",
     "google-maps": "carpages/Js-GoogleMapsLoader#3.3.0"
   },
   "devDependencies": {
-    "requirejs": "~2.1.11"
+    "requirejs": "2.x"
   }
 }

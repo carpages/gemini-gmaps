@@ -1,76 +1,79 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Gemini Gmaps Edge Test</title>
 
-<head>
-  <meta charset="utf-8">
-  <title>Gemini Gmaps Edge Test</title>
+    <style>
+      html,
+      body {
+        font-size: 14px;
+        width: 100vw;
+        min-height: 100%;
+      }
 
-  <style>
-    html,
-    body {
-      font-size: 14px;
-      width: 100vw;
-      min-height: 100%;
-    }
+      iframe {
+        width: 100%;
+        border: none;
+      }
 
-    iframe {
-      width: 100%;
-      border: none;
-    }
+      p:last-child {
+        margin-bottom: 0;
+      }
 
-    p:last-child {
-      margin-bottom: 0;
-    }
+      .map {
+        display: flex;
+        justify-content: center;
+        border-radius: 8px;
+        max-width: 100%;
+        overflow: hidden;
+      }
 
-    .map {
-      display: flex;
-      justify-content: center;
-      border-radius: 8px;
-      max-width: 100%;
-      overflow: hidden;
-    }
+      .map img {
+        max-width: none;
+      }
+    </style>
 
-    .map img {
-      max-width: none;
-    }
-  </style>
+    <link rel="stylesheet" href="https://www.carpages.ca/dist/css/style.css" />
 
-  <link rel="stylesheet" href="https://www.carpages.ca/dist/css/style.css">
+    <script>
+      window.G = { D: { _qj: [] } };
+      G.Q = function(k) {
+        G.D._qj.push(k);
+      }; //0.1.0
+    </script>
+  </head>
 
-  <script>window.G = { D: { _qj: [] } }; G.Q = function (k) { G.D._qj.push(k) };//0.1.0</script>
-</head>
+  <body class="push-double-ends">
+    <div class="l-row">
+      <div class="l-column--small-12">
+        <header class="box pad-double push-double-bottom shadow round-double">
+          <h1>Gemini Google Maps</h1>
+          <p>
+            All map types require an
+            <code>apiKey</code> be passed in the initializer object.
+          </p>
 
-<body class="push-double-ends">
-
-  <div class="l-row">
-    <div class="l-column--small-12">
-      <header class="box pad-double push-double-bottom shadow round-double">
-        <h1>Gemini Google Maps</h1>
-        <p>
-          All map types require an
-          <code>apiKey</code> be passed in the initializer object.
-        </p>
-
-        <div class="box box-light-gray pad round-double">
-          <h5>Usage</h5>
-          <pre class="push-none box-white"><!--
+          <div class="box box-light-gray pad round-double">
+            <h5>Usage</h5>
+            <pre class="push-none box-white"><!--
            -->G('.selector').gmaps({ apiKey: "some-key-from-google-cloud-console" });<!--
          --></pre>
-        </div>
-      </header>
+          </div>
+        </header>
+      </div>
     </div>
-  </div>
 
-  <main class="l-row">
-    <div class="l-column--medium-4">
-      <div class="box pad-double shadow round-double">
-        <h3 class="weight-light">Embedded &rarr; Default Type</h3>
+    <main class="l-row">
+      <div class="l-column--medium-4">
+        <div class="box pad-double shadow round-double">
+          <h3 class="weight-light">Embedded &rarr; Default Type</h3>
 
-        <div id="js-map" class="map"></div>
+          <div id="js-map" class="map"></div>
 
-        <div class="box box-light-gray pad-double push-ends round-double">
-          <h5>Usage</h5>
-          <pre class="box-white">
+          <div class="box box-light-gray pad-double push-ends round-double">
+            <h5>Usage</h5>
+            <pre class="box-white">
 G('.selector').gmaps({ 
   
   locations: [ { title?, address?, lat,lng } ... ] 
@@ -81,66 +84,60 @@ G('.selector').gmaps({
 
 });<!--
         --></pre>
-          <p>Embedded map types are the default map type.</p>
-          <p>
-            You need to pass an
-            <code>embedQuery</code>, or a
-            <code>locations</code> array with an
-            <code>address</code> or
-            <code>title</code> to the
-            <code>G('.selector').gmaps()</code> initializer object.
-            <br> The
-            <code>embedQuery</code>,
-            <code>address</code>, or
-            <code>title</code> can be an address (2520 Haines Road) or business name (Carpages.ca).
-          </p>
+            <p>Embedded map types are the default map type.</p>
+            <p>
+              You need to pass an
+              <code>embedQuery</code>, or a <code>locations</code> array with an
+              <code>address</code> or <code>title</code> to the
+              <code>G('.selector').gmaps()</code> initializer object. <br />
+              The <code>embedQuery</code>, <code>address</code>, or <code>title</code> can be an
+              address (2520 Haines Road) or business name (Carpages.ca).
+            </p>
 
-          <h5>Limits</h5>
-          <p>Unlimited loads / month</p>
+            <h5>Limits</h5>
+            <p>Unlimited loads / month</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="l-column--medium-4">
-      <div class="box pad-double shadow round-double">
-        <h3 class="weight-light">Static</h3>
+      <div class="l-column--medium-4">
+        <div class="box pad-double shadow round-double">
+          <h3 class="weight-light">Static</h3>
 
-        <div id="js-map-static" class="map"></div>
+          <div id="js-map-static" class="map"></div>
 
-        <div class="box box-light-gray pad-double push-ends round-double">
-          <h5>Usage</h5>
-          <pre class="box-white"><!--
+          <div class="box box-light-gray pad-double push-ends round-double">
+            <h5>Usage</h5>
+            <pre class="box-white"><!--
           -->G('.selector').gmaps({ locations: [{ title, lat,lng }], type: 'static' });<!--
         --></pre>
-          <h5>Limits</h5>
-          <p>100,000 loads / month</p>
-          <h5>Caveats</h5>
-          <p>A static map image cannot be larger than 640x640.</p>
+            <h5>Limits</h5>
+            <p>100,000 loads / month</p>
+            <h5>Caveats</h5>
+            <p>A static map image cannot be larger than 640x640.</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="l-column--medium-4">
-      <div class="box pad-double shadow round-double">
-        <h3 class="weight-light">Dynamic</h3>
+      <div class="l-column--medium-4">
+        <div class="box pad-double shadow round-double">
+          <h3 class="weight-light">Dynamic</h3>
 
-        <div id="js-map-dynamic" class="map"></div>
+          <div id="js-map-dynamic" class="map"></div>
 
-        <div class="box box-light-gray pad-double push-ends round-double">
-          <h5>Usage</h5>
-          <pre class="box-white"><!--
+          <div class="box box-light-gray pad-double push-ends round-double">
+            <h5>Usage</h5>
+            <pre class="box-white"><!--
           -->G('.selector').gmaps({ locations: [{ title, lat,lng }], type: 'dynamic' });<!--
         --></pre>
-          <h5>Limits</h5>
-          <p>28,000 loads / month</p>
+            <h5>Limits</h5>
+            <p>28,000 loads / month</p>
+          </div>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <!-- Load JS. -->
-  <script data-main="gemini-gmaps.edge" src="../bower_components/requirejs/require.js"></script>
-
-</body>
-
+    <!-- Load JS. -->
+    <script data-main="gemini-gmaps.edge" src="../bower_components/requirejs/require.js"></script>
+  </body>
 </html>

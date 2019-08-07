@@ -30,9 +30,6 @@ module.exports = function( grunt ) {
       }
     },
     eslint: {
-      options: {
-        configFile: '.eslintrc.js'
-      },
       target: [ 'gemini.gmaps.js' ]
     },
     connect: {
